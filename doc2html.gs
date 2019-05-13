@@ -1,7 +1,9 @@
 function onOpen(e) {  
   Logger.log('AuthMode: ' + e.authMode);
   var lang = Session.getActiveUserLocale();
-  var menu = DocumentApp.getUi().createMenu("瞬速メッセンジャー")
+//  var menu = DocumentApp.getUi().createMenu("瞬速メッセンジャー")
+  var ui = DocumentApp.getUi();  
+  var menu = ui.createAddonMenu();
   if(e && e.authMode == 'NONE'){
     var startLabel = lang === 'ja' ? '使用開始' : 'start';
     menu.addItem(startLabel, 'askEnabled');
@@ -11,12 +13,22 @@ function onOpen(e) {
     menu.addItem('HTMLコード生成', 'ConvertGoogleDocToCleanHtml');
     }
     else{
-    menu.addItem('Generate HTML', 'generateShortUrls');
+    menu.addItem('Generate HTML', 'ConvertGoogleDocToCleanHtml');
     }
   };
   menu.addToUi();
 
 };
+
+function askEnabled(){
+  var lang = Session.getActiveUserLocale();
+  var title = 'Your Script\'s Title';
+  var msg = lang === 'ja' ? '瞬速メッセンジャーが有効になりました。ブラウザを更新してください。' : 'Rapid Messenger has been enabled.';
+  var ui = DocumentApp.getUi();
+  ui.alert(title, msg, ui.ButtonSet.OK);
+};
+
+
 
 function getLastIndexOfRichEditor(body){
   var searchTypeHR = DocumentApp.ElementType.HORIZONTAL_RULE;
@@ -80,12 +92,15 @@ function getHtmlPartBody(body){
         theImage.removeFromParent();              
       } 
     });
-    
+
     // 最後の1文は削除できないので、除外する
     var paragraphs = body.getParagraphs();  
     paragraphs.map(function(theParagraph) {
-       if(body.getChildIndex(theHr.getParent()) < body.getChildIndex(theParagraph) && !theParagraph.isAtDocumentEnd()){
-        theParagraph.removeFromParent();         
+       if(body.getChildIndex(theHr.getParent()) < body.getChildIndex(theParagraph)){
+         if(!theParagraph.isAtDocumentEnd())
+           theParagraph.removeFromParent();         
+         else 
+           theParagraph.setText(' ');
       } 
     });
 
