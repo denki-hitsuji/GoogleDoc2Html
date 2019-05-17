@@ -1,5 +1,3 @@
-
-
 function createImageFolder(body){
   // 出力先のフォルダを生成
   Logger.log("出力先のフォルダを生成");

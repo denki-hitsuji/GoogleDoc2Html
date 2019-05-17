@@ -1,3 +1,8 @@
+function onInstall(e) {
+  onOpen(e);
+  // Perform additional setup as needed.
+}
+
 function onOpen(e) {  
   Logger.log('AuthMode: ' + e.authMode);
   var lang = Session.getActiveUserLocale();
@@ -93,7 +98,7 @@ function getHtmlPartBody(body){
       } 
     });
 
-    // 最後の1文は削除できないので、除外する
+    // 最後の1文は削除できないので、空白に置き換える
     var paragraphs = body.getParagraphs();  
     paragraphs.map(function(theParagraph) {
        if(body.getChildIndex(theHr.getParent()) < body.getChildIndex(theParagraph)){
@@ -149,7 +154,7 @@ function processItem(item, listCounters, images) {
     }
 
     if (item.getNumChildren() == 0)
-      return "";
+      return "<br/>";
   }
   else if (item.getType() == DocumentApp.ElementType.INLINE_IMAGE)
   {
@@ -246,12 +251,16 @@ function processText(item, output) {
       var partAtts = item.getAttributes(indices[i]);
       var startPos = indices[i];
       var endPos = i+1 < indices.length ? indices[i+1]: text.length;
+      Logger.log(i + "個目 startPos:" + startPos + " endPos:" + endPos);
       var partText = text.substring(startPos, endPos);
 
       Logger.log(partText);
 
-      if(item.getForegroundColor(startPos + 1) != "null"){
-        output.push('<span style="color:' + item.getForegroundColor(startPos + 1) + ';">');
+      var color = item.getForegroundColor(startPos);
+      
+      if(color != null){
+        Logger.log("color:" + color);
+        output.push('<span style="color:' + color + ';">');
       }
       if (partAtts.ITALIC) {
         output.push('<i>');
@@ -275,7 +284,7 @@ function processText(item, output) {
       else {
         output.push(partText);
       }
-      if(item.getForegroundColor(startPos) != "null"){
+      if(color != null){
         output.push('</span>');
       }
       if (partAtts.ITALIC) {
