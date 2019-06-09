@@ -28,7 +28,7 @@ function onOpen(e) {
 function askEnabled(){
   var lang = Session.getActiveUserLocale();
   var title = 'Your Script\'s Title';
-  var msg = lang === 'ja' ? '瞬速メッセンジャーが有効になりました。ブラウザを更新してください。' : 'Rapid Messenger has been enabled.';
+  var msg = lang === 'ja' ? '有効になりました。ブラウザを更新してください。' : 'Rapid Messenger has been enabled.';
   var ui = DocumentApp.getUi();
   ui.alert(title, msg, ui.ButtonSet.OK);
 };
@@ -102,10 +102,15 @@ function getHtmlPartBody(body){
     var paragraphs = body.getParagraphs();  
     paragraphs.map(function(theParagraph) {
        if(body.getChildIndex(theHr.getParent()) < body.getChildIndex(theParagraph)){
-         if(!theParagraph.isAtDocumentEnd())
+         if(!theParagraph.isAtDocumentEnd() && theParagraph.getNextSibling() != null){         
+//           Logger.log(theParagraph.getText());
+           Logger.log("Index:" + paragraphs.indexOf(theParagraph) + " nextSibling:" + theParagraph.getNextSibling().getText() );
            theParagraph.removeFromParent();         
+         }
          else 
+         {
            theParagraph.setText(' ');
+         }
       } 
     });
 
@@ -258,6 +263,11 @@ function processText(item, output) {
 
       var color = item.getForegroundColor(startPos);
       
+      if (-1 < partText.indexOf('http://') || -1 < partText.indexOf('https://')) {
+        var linkText = '<a href="' + partText + '" rel="nofollow">' + partText + '</a>';
+        output.push(linkText);
+      }
+       
       if(color != null){
         Logger.log("color:" + color);
         output.push('<span style="color:' + color + ';">');
